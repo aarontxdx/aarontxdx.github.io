@@ -1,0 +1,232 @@
+<html>
+    <head>
+        <title>Experiment B3</title>
+        <style type="text/css">
+            .tg {display:none;}
+            .tg  {border-collapse:collapse;border-spacing:0;}
+            .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+              overflow:hidden;padding:10px 5px;word-break:normal;}
+            .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+              font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+            .tg .tg-n7lu{border-color:#343434;text-align:right;vertical-align:top}
+            .tg .tg-ur59{border-color:#343434;text-align:left;vertical-align:top}
+            </style>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+            #stimulus{
+                    width: 600px;
+                    position: absolute;
+                    top: 100px;
+                    left: 100px;
+                    height: auto;
+            }
+
+        </style>
+    </head>
+   <body>
+        <h1 id="title">Experiment B3</h1>
+        <h2 id="instruction">
+            Bei deutschen Speißen druecke 'D', bei chinesischen Speißen druecke 'F, bei mexikanischen Speißen druecke 'G'!
+            <br>
+            Druecke 'D', 'F' oder 'G', um zu starten!
+        </h2>
+        <img id="stimulus"></img>
+        <label id="state"></label>
+        <p id="mean"></p>
+        <p id="sd"></p>
+        <p id="fehlerrate"></p>
+        <p id="correlation"></p>
+
+        <table id="table" class="tg">
+            <thead>
+              <tr>
+                <th class="tg-ur59"></th>
+                <th class="tg-ur59">Gesamt</th>
+                <th class="tg-ur59">chinesisch</th>
+                <th class="tg-ur59">deutsch</th>
+                <th class="tg-ur59">mexikansich</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tg-ur59">Mittlere Entscheidungszeit</td>
+                <td class="tg-n7lu"><label id="meanGes"></label></td>
+                <td class="tg-n7lu"><label id="meanC"></label></td>
+                <td class="tg-n7lu"><label id="meanG"></label></td>
+                <td class="tg-ur59"><label id="meanM"></label></td>
+              </tr>
+              <tr>
+                <td class="tg-ur59">Standardabweichung</td>
+                <td class="tg-n7lu"><label id="SDGes"></label></td>
+                <td class="tg-n7lu"><label id="SDC"></label></td>
+                <td class="tg-n7lu"><label id="SDG"></label></td>
+                <td class="tg-ur59"><label id="SDM"></label></td>
+              </tr>
+              <tr>
+                <td class="tg-ur59">Fehlerrate</td>
+                <td class="tg-n7lu"><label id="errorRateGes"></label></td>
+                <td class="tg-n7lu"><label id="errorRateC"></label></td>
+                <td class="tg-n7lu"><label id="errorRateG"></label></td>
+                <td class="tg-ur59"><label id="errorRateM"></label></td>
+              </tr>
+            </tbody>
+        </table>
+
+        <script>
+            let experimentActive = false;
+            let currentStimulus = -1;
+            let pictureList = []
+            let timeStamp;
+            let end = false;
+            let errorRate = [0, 0, 0]
+            let times = [[],[],[]]
+
+            let stimulus = document.getElementById("stimulus");
+            let state = document.getElementById("state");
+            let table = document.getElementById("table");
+            let instruction = document.getElementById("instruction");
+
+            //table labels
+            let meanGes = document.getElementById("meanGes");
+            let meanC = document.getElementById("meanC");
+            let meanG = document.getElementById("meanG");
+            let meanM = document.getElementById("meanM");
+            let SDGes = document.getElementById("SDGes");
+            let SDC = document.getElementById("SDC");
+            let SDG = document.getElementById("SDG");
+            let SDM = document.getElementById("SDM");
+            let errorRateGes = document.getElementById("errorRateGes");
+            let errorRateC = document.getElementById("errorRateC");
+            let errorRateG = document.getElementById("errorRateG");
+            let errorRateM = document.getElementById("errorRateM");
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function init_experiment(){
+                experimentActive = true;
+                instruction.textContent = "Bei deutschen Speißen druecke 'D', bei chinesischen Speißen druecke 'F, bei mexikanischen Speißen druecke 'G'!";
+                for(let i = 0; i < 10; i++){
+                    pictureList.push(["food/china" + i + ".jpg", 0]);
+                    pictureList.push(["food/german" + i + ".jpg", 1]);
+                    pictureList.push(["food/mexican" + i + ".jpg", 2]);
+                }
+                shuffle(pictureList);
+            }
+
+            
+
+            function getMean(data){
+                let sum = 0;
+                for (let value of data) sum += value;
+                return sum / data.length;
+            }
+            
+            function getFehlerrate(data){
+                return experimentCount - data.length;
+            }
+            function getSD(data) {
+                let mean = getMean(data);
+                let squareSum = 0;
+                for (let value of data) squareSum += (value - mean) ** 2;
+                return Math.sqrt(squareSum / data.length);
+            }
+            function getCorrelation(times, distance){
+                //Covariance
+                let cov = 0;
+                let meanTimes = getMean(times);
+                let meanDistance = getMean(distance);
+                for (let i = 0; i < times.length; i++){
+                    cov = cov + (times[i] - meanTimes)*(distance[i] - meanDistance);
+                } 
+                cov = cov * (1/times.length);
+
+                return cov / (getSD(times) * getSD(distance));
+            }
+
+            function acceptInput(input) {
+                let deltaTime = Date.now() - timeStamp;
+                times[pictureList[currentStimulus][1]].push(deltaTime);
+                if(input != pictureList[currentStimulus][1]){
+                    errorRate[pictureList[currentStimulus][1]] += 1;
+                }
+            }
+
+            function showResult(){
+                meanGes.textContent = Math.round(getMean(times[0].concat(times[1].concat(times[2]))));
+                meanC.textContent = Math.round(getMean(times[0]));
+                meanG.textContent = Math.round(getMean(times[1]));
+                meanM.textContent = Math.round(getMean(times[2]));
+
+                SDGes.textContent = Math.round(getSD(times[0].concat(times[1].concat(times[2]))));
+                SDC.textContent = Math.round(getSD(times[0]));
+                SDG.textContent = Math.round(getSD(times[1]));
+                SDM.textContent = Math.round(getSD(times[2]));
+
+                errorRateGes.textContent = (errorRate[0] + errorRate[1] + errorRate[2]) + '/30';
+                errorRateC.textContent = errorRate[0] + "/10";
+                errorRateG.textContent = errorRate[1] + "/10";
+                errorRateM.textContent = errorRate[2] + "/10";
+            }
+
+            function nextStimulus(){
+                currentStimulus += 1;
+                if(currentStimulus < 30){
+                    stimulus.style.top = (window.innerHeight/2) - (200);
+                    stimulus.style.left = (window.innerWidth/2) - (300);
+                    stimulus.src = pictureList[currentStimulus][0];
+                    timeStamp = Date.now();
+                } else {
+                    end = true;
+                    stimulus.style.opacity = 0;
+                    table.style.display = 'block';
+                    showResult();
+                }
+            }
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'f') {
+                    if(end){
+
+                    } else if(experimentActive){
+                        acceptInput(0);
+                        nextStimulus();
+                    } else {
+                        init_experiment();
+                        nextStimulus();
+                    }
+                }
+                if (event.key === 'd') {
+                    if(end){
+
+                    } else if(experimentActive){
+                        acceptInput(1);
+                        nextStimulus();
+                    } else {
+                        init_experiment();
+                        nextStimulus();
+                    }
+                }
+                if (event.key === 'g') {
+                    if(end){
+
+                    } else if(experimentActive){
+                        acceptInput(2)
+                        nextStimulus();
+                    } else {
+                        init_experiment();
+                        nextStimulus();
+                    }
+                }
+            });
+      </script>
+   </body>
+</html>
+
