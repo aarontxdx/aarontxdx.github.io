@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <title>Experiment Fitts-Law</title>
+        <style>
+body {
+    font-family: sans-serif;
+}
+.layout {
+  width: 50px;      /* Breite des Rechtecks */
+  height: 50px;     /* Höhe des Rechtecks */
+  background-color: blue; 
+  color: white;       /* Abstand von links */
+}
+@keyframes fadeIn {
+  from { opacity: 0.0; }
+  to { opacity: 1; }
+}
+
+        </style>
+    </head>
+   <body>
+        <h1 id="title">Taschenrechner Layout 1</h1>
+        <h2 id="instruction">Drücke Leerzeichen um zu starten!</h2>
+        <button id="nullButton" class="layout">0</button>
+        <button id="eins" class="layout">1</button>
+        <button id="zwei" class="layout">2</button>
+        <button id="drei" class="layout">3</button>
+        <button id="vier" class="layout">4</button>
+        <button id="fuenf" class="layout">5</button>
+        <button id="sechs" class="layout">6</button>
+        <button id="sieben" class="layout">7</button>
+        <button id="acht" class="layout">8</button>
+        <button id="neun" class="layout">9</button>
+        <button id="komma" class="layout">,</button>
+        <button id="mal" class="layout">*</button>
+        <button id="gleich" class="layout">=</button>
+        <label id="state" class="layout"></label>
+
+        <script>
+            let instruction = document.getElementById("instruction");            
+
+            let nullButton = document.getElementById("nullButton");
+            let eins = document.getElementById("eins");
+            let zwei = document.getElementById("zwei");
+            let drei = document.getElementById("drei");
+            let vier = document.getElementById("vier");
+            let fuenf = document.getElementById("fuenf");
+            let sechs = document.getElementById("sechs");
+            let sieben = document.getElementById("sieben");
+            let acht = document.getElementById("acht");
+            let neun = document.getElementById("neun");
+            let komma = document.getElementById("komma");
+            let mal = document.getElementById("mal");
+            let gleich = document.getElementById("gleich");
+            
+            function eingabeNull(eingabe){
+                instruction.textContent = eingabe;
+            }
+            
+            nullButton.onclick = (event => {
+                eingabeNull("0");
+            });
+            eins.onclick = (event => {
+                eingabeNull("1");
+            });
+            zwei.onclick = (event => {
+                eingabeNull("2");
+            });
+            drei.onclick = (event => {
+                eingabeNull("3");
+            });
+            vier.onclick = (event => {
+                eingabeNull("4");
+            });
+            fuenf.onclick = (event => {
+                eingabeNull("5");
+            });
+            sechs.onclick = (event => {
+                eingabeNull("6");
+            });
+            sieben.onclick = (event => {
+                eingabeNull("7");
+            });
+            acht.onclick = (event => {
+                eingabeNull("8");
+            });
+            neun.onclick = (event => {
+                eingabeNull("9");
+            });
+            komma.onclick = (event => {
+                eingabeNull(",");
+            });
+            mal.onclick = (event => {
+                eingabeNull("*");
+            });
+            gleich.onclick = (event => {
+                eingabeNull("=");
+            });
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === ' ') {
+                    if (end || errorState) {
+
+                    } else if (!experimentActive){
+                        experimentActive = true;
+                        startExperiment();
+                        return;
+                    } else if (!rectangleVisible) {
+                        state.textContent = "Zu früh";
+                        errorExperiment();
+                    } else if (rectangleVisible){
+                        acceptInput();
+                        checkForEnd();
+                    }
+                }
+            });
+      </script>
+   </body>
+</html>
