@@ -9,7 +9,8 @@ body {
   width: 50px;      /* Breite des Rechtecks */
   height: 50px;     /* Höhe des Rechtecks */
   background-color: blue; 
-  color: white;       /* Abstand von links */
+  color: white;
+  top: 200px;       /* Abstand von links */
 }
 @keyframes fadeIn {
   from { opacity: 0.0; }
@@ -21,6 +22,9 @@ body {
    <body>
         <h1 id="title">Taschenrechner Layout 1</h1>
         <h2 id="instruction">Drücke Leerzeichen um zu starten!</h2>
+        <label id="stateLabel">Experiment starten</label>
+        <p id ="rechnung">Zu berechnen:</p>
+        <p id ="eingabeLabel">Deine Eingabe:</p>
         <button id="nullButton" class="layout">0</button>
         <button id="eins" class="layout">1</button>
         <button id="zwei" class="layout">2</button>
@@ -37,7 +41,13 @@ body {
         <label id="state" class="layout"></label>
 
         <script>
-            let instruction = document.getElementById("instruction");            
+            let expectedChar = [];
+            let state = 0;
+
+            let instruction = document.getElementById("instruction");
+            let rechnung = document.getElementById("rechnung"); 
+            let eingbeLabel = document.getElementById("eingabeLabel");
+            let stateLabel = document.getElementById("stateLabel")            
 
             let nullButton = document.getElementById("nullButton");
             let eins = document.getElementById("eins");
@@ -53,8 +63,62 @@ body {
             let mal = document.getElementById("mal");
             let gleich = document.getElementById("gleich");
             
+            function init_experiment(){
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push(",");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push("*");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push(",");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push("=");
+                let stringRechnung = "";
+                for(element in expectedChar){
+                    stringRechnung += expectedChar[element];
+                }
+                rechnung.textContent = stringRechnung;
+            }
+
+            function updateEingabe(){
+                eingabeLabel.textContent += expectedChar[state];
+            }
+
+            function berechnen(){
+                let stringFaktor1 = "";
+                let stringFaktor2 = "";
+
+                stringFaktor1 += expectedChar[0];
+                stringFaktor1 += ".";
+                stringFaktor1 += expectedChar[2];
+                stringFaktor1 += expectedChar[3];
+
+                stringFaktor2 += expectedChar[5];
+                stringFaktor2 += ".";
+                stringFaktor2 += expectedChar[7];
+                stringFaktor2 += expectedChar[8];
+                
+                return parseFloat(stringFaktor1) * parseFloat(stringFaktor2)
+            }
+
             function eingabeNull(eingabe){
-                instruction.textContent = eingabe;
+                if(state < expectedChar.length){
+                    if(eingabe == expectedChar[state]){
+                        if(eingabe == "="){
+                            stateLabel.textContent = "Ergebnis"
+                            state++;
+                            let result = berechnen();
+                            eingabeLabel.textContent = result.toString();
+                        } else {
+                            updateEingabe();
+                            stateLabel.textContent = "richtig";
+                            state++;
+                        }
+                    } else {
+                        stateLabel.textContent = "falsch";
+                    }
+                }
             }
             
             nullButton.onclick = (event => {
@@ -99,19 +163,9 @@ body {
 
             window.addEventListener('keydown', (event) => {
                 if (event.key === ' ') {
-                    if (end || errorState) {
-
-                    } else if (!experimentActive){
-                        experimentActive = true;
-                        startExperiment();
-                        return;
-                    } else if (!rectangleVisible) {
-                        state.textContent = "Zu früh";
-                        errorExperiment();
-                    } else if (rectangleVisible){
-                        acceptInput();
-                        checkForEnd();
-                    }
+                    instruction.textContent = "Berechne die folgende Rechnung so schnell wie möglich:"
+                    stateLabel.textContent = "Experiment läuft"
+                    init_experiment();
                 }
             });
       </script>
