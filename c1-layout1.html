@@ -118,7 +118,7 @@ body {
 
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = dateiname || "liste.txt";
+                a.download = dateiname || "result.txt";
                 a.click();
 
                 // Aufräumen
@@ -232,7 +232,7 @@ body {
                         experimentActive = true;
                     } else {
                         if(state == expectedChar.length){
-                            listeAlsTextdateiHerunterladen(ID, times, "liste.txt");
+                            listeAlsTextdateiHerunterladen(ID, times, "result.txt");
                         }   
                     }
                 }
