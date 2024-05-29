@@ -1,0 +1,280 @@
+<html>
+    <head>
+        <title>Experiment Fitts-Law</title>
+        <style>
+body {
+    font-family: sans-serif;
+}
+.layout {
+  width: 50px;      /* Breite des Rechtecks */
+  height: 50px;     /* Höhe des Rechtecks */
+  background-color: blue; 
+  color: white;
+  top: 200px; 
+  position: absolute;
+  opacity: 0;  
+      /* Abstand von links */
+}
+@keyframes fadeIn {
+  from { opacity: 0.0; }
+  to { opacity: 1; }
+}
+
+        </style>
+    </head>
+   <body>
+        <h1 id="title">Taschenrechner Layout 1</h1>
+        <h2 id="instruction">Die Maus sollte bei Experimentstart auf der 6 liegen. Drücke Leerzeichen um zu starten!</h2>
+        <label id="stateLabel">Experiment starten</label>
+        <p id ="rechnung">Zu berechnen:</p>
+        <p id ="eingabeLabel">Deine Eingabe:</p>
+        <button id="nullButton" class="layout">0</button>
+        <button id="eins" class="layout">1</button>
+        <button id="zwei" class="layout">2</button>
+        <button id="drei" class="layout">3</button>
+        <button id="vier" class="layout">4</button>
+        <button id="fuenf" class="layout">5</button>
+        <button id="sechs" class="layout">6</button>
+        <button id="sieben" class="layout">7</button>
+        <button id="acht" class="layout">8</button>
+        <button id="neun" class="layout">9</button>
+        <button id="komma" class="layout">,</button>
+        <button id="mal" class="layout">*</button>
+        <button id="gleich" class="layout">=</button>
+        <label id="state" class="layout"></label>
+
+        <script>
+            let expectedChar = [];
+            let ID = [];
+            let times = [];
+            let state = 0;
+            let experimentActive = false;
+            let timeStamp;
+
+            let instruction = document.getElementById("instruction");
+            let rechnung = document.getElementById("rechnung"); 
+            let eingbeLabel = document.getElementById("eingabeLabel");
+            let stateLabel = document.getElementById("stateLabel")            
+
+            let nullButton = document.getElementById("nullButton");
+            let eins = document.getElementById("eins");
+            let zwei = document.getElementById("zwei");
+            let drei = document.getElementById("drei");
+            let vier = document.getElementById("vier");
+            let fuenf = document.getElementById("fuenf");
+            let sechs = document.getElementById("sechs");
+            let sieben = document.getElementById("sieben");
+            let acht = document.getElementById("acht");
+            let neun = document.getElementById("neun");
+            let komma = document.getElementById("komma");
+            let mal = document.getElementById("mal");
+            let gleich = document.getElementById("gleich");
+            let gesamtDistance = 0;
+
+            const buttonList = [nullButton, eins, zwei, drei, vier, fuenf, sechs, sieben, acht, neun, komma, mal, gleich];
+            
+            function init_experiment(){
+                timeStamp = Date.now();
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push(",");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push("*");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push(",");
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push((Math.floor(Math.random()*9.999)).toString());
+                expectedChar.push("=");
+                if(expectedChar[0] != '6'){
+                    ID.push(Math.log2((2*getDistance(buttonList[expectedChar[0]], buttonList[6]))/50));
+                } else {
+                    ID.push(0);
+                }
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[0]], buttonList[10]))/50));
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[2]], buttonList[10]))/50));
+                if(expectedChar[2] != expectedChar[3]){
+                    ID.push(Math.log2((2*getDistance(buttonList[expectedChar[2]], buttonList[expectedChar[3]]))/50));
+                } else {
+                    ID.push(0);
+                }
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[3]], buttonList[11]))/50));
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[5]], buttonList[11]))/50));
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[5]], buttonList[10]))/50));
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[7]], buttonList[10]))/50));
+                if(expectedChar[8] != expectedChar[7]){
+                    ID.push(Math.log2((2*getDistance(buttonList[expectedChar[8]], buttonList[expectedChar[7]]))/50));
+                } else {
+                    ID.push(0);
+                }
+                ID.push(Math.log2((2*getDistance(buttonList[expectedChar[8]], buttonList[12]))/50));
+                let stringRechnung = "";
+                for(element in expectedChar){
+                    stringRechnung += expectedChar[element];
+                }
+                rechnung.textContent = stringRechnung;
+            }
+
+            function setButtons(){
+                eins.style.top = 220;
+                eins.style.left = 20;
+                zwei.style.top = 220;
+                zwei.style.left = 75;
+                drei.style.top = 220;
+                drei.style.left = 130;
+                vier.style.top = 220;
+                vier.style.left = 185;
+                fuenf.style.top = 275;
+                fuenf.style.left = 20;
+                sechs.style.top = 275;
+                sechs.style.left = 75;
+                sieben.style.top = 275;
+                sieben.style.left = 130;
+                acht.style.top = 275;
+                acht.style.left = 185;
+                komma.style.top = 330;
+                komma.style.left = 20;
+                neun.style.top = 330;
+                neun.style.left = 75;
+                nullButton.style.top = 330;
+                nullButton.style.left = 130;
+                mal.style.top = 330;
+                mal.style.left = 185;
+                gleich.style.top = 385;
+                gleich.style.left = 75;
+                gleich.style.width = 105;
+                for(let x of buttonList){
+                    x.style.opacity = 100;
+                }
+            }
+
+            function listeAlsTextdateiHerunterladen(ID, MT, dateiname) {
+                const textInhalt = "Rechnung: " + expectedChar.join("") + "\n\nIndex of Dificulty (zwischen zwei Tasten)\n" +  ID.join("\n") + "\n\n" + "Bewegungszeit (pro gedrückte Taste)\n" + MT.join("\n");
+                const blob = new Blob([textInhalt], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = dateiname || "liste.txt";
+                a.click();
+
+                // Aufräumen
+                URL.revokeObjectURL(url);
+            }
+
+            
+            function getDistance(button1, button2){
+                const button1Position = button1.getBoundingClientRect(); 
+                const button2Position = button2.getBoundingClientRect();
+                let distance = Math.sqrt(
+                    Math.abs(button1Position.left - button2Position.left) 
+                    * Math.abs(button1Position.left - button2Position.left)
+                    +
+                    Math.abs(button1Position.top - button2Position.top)
+                    * Math.abs(button1Position.top - button2Position.top)
+                );
+
+                return distance;
+            }
+
+            function updateEingabe(){
+                eingabeLabel.textContent += expectedChar[state];
+            }
+
+            function berechnen(){
+                let stringFaktor1 = "";
+                let stringFaktor2 = "";
+
+                stringFaktor1 += expectedChar[0];
+                stringFaktor1 += ".";
+                stringFaktor1 += expectedChar[2];
+                stringFaktor1 += expectedChar[3];
+
+                stringFaktor2 += expectedChar[5];
+                stringFaktor2 += ".";
+                stringFaktor2 += expectedChar[7];
+                stringFaktor2 += expectedChar[8];
+                
+                return parseFloat(stringFaktor1) * parseFloat(stringFaktor2)
+            }
+
+            function eingabeNull(eingabe){
+                if(state < expectedChar.length){
+                    if(eingabe == expectedChar[state]){
+                        if(eingabe == "="){
+                            stateLabel.textContent = "Ergebnis";
+                            instruction.textContent = "Leerzeichen um das Ergebnis zu speichern. Seite neu laden um Experiment erneut durchzuführen."
+                            state++;
+                            let result = berechnen();
+                            eingabeLabel.textContent = result.toString();
+                        } else {
+                            updateEingabe();
+                            stateLabel.textContent = "richtig";
+                            state++;
+                        }
+                        times.push(Date.now() - timeStamp);
+                        timeStamp = Date.now();
+                    } else {
+                        stateLabel.textContent = "falsch";
+                    }
+                }
+            }
+            
+            nullButton.onclick = (event => {
+                eingabeNull("0");
+            });
+            eins.onclick = (event => {
+                eingabeNull("1");
+            });
+            zwei.onclick = (event => {
+                eingabeNull("2");
+            });
+            drei.onclick = (event => {
+                eingabeNull("3");
+            });
+            vier.onclick = (event => {
+                eingabeNull("4");
+            });
+            fuenf.onclick = (event => {
+                eingabeNull("5");
+            });
+            sechs.onclick = (event => {
+                eingabeNull("6");
+            });
+            sieben.onclick = (event => {
+                eingabeNull("7");
+            });
+            acht.onclick = (event => {
+                eingabeNull("8");
+            });
+            neun.onclick = (event => {
+                eingabeNull("9");
+            });
+            komma.onclick = (event => {
+                eingabeNull(",");
+            });
+            mal.onclick = (event => {
+                eingabeNull("*");
+            });
+            gleich.onclick = (event => {
+                eingabeNull("=");
+            });
+
+            window.onload = setButtons();
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === ' ') {
+                    if(!experimentActive){
+                        instruction.textContent = "Berechne die folgende Rechnung so schnell wie möglich:";
+                        stateLabel.textContent = "Experiment läuft";
+                        init_experiment();
+                        experimentActive = true;
+                    } else {
+                        if(state == expectedChar.length){
+                            listeAlsTextdateiHerunterladen(ID, times, "liste.txt");
+                        }   
+                    }
+                }
+            });
+      </script>
+   </body>
+</html>

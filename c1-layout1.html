@@ -21,7 +21,7 @@ body {
     </head>
    <body>
         <h1 id="title">Taschenrechner Layout 1</h1>
-        <h2 id="instruction">Drücke Leerzeichen um zu starten!</h2>
+        <h2 id="instruction">Die Maus sollte bei Experimentstart auf der 5 liegen. Drücke Leerzeichen um zu starten!</h2>
         <label id="stateLabel">Experiment starten</label>
         <p id ="rechnung">Zu berechnen:</p>
         <p id ="eingabeLabel">Deine Eingabe:</p>
@@ -82,6 +82,11 @@ body {
                 expectedChar.push((Math.floor(Math.random()*9.999)).toString());
                 expectedChar.push((Math.floor(Math.random()*9.999)).toString());
                 expectedChar.push("=");
+                if(expectedChar[0] != '5'){
+                    ID.push(Math.log2((2*getDistance(buttonList[expectedChar[0]], buttonList[5]))/50));
+                } else {
+                    ID.push(0);
+                }
                 ID.push(Math.log2((2*getDistance(buttonList[expectedChar[0]], buttonList[10]))/50));
                 ID.push(Math.log2((2*getDistance(buttonList[expectedChar[2]], buttonList[10]))/50));
                 if(expectedChar[2] != expectedChar[3]){
@@ -107,7 +112,7 @@ body {
             }
 
             function listeAlsTextdateiHerunterladen(ID, MT, dateiname) {
-                const textInhalt = "Rechnung: " + expectedChar.join("") + "\n\nIndex of Dificulty\n" +  ID.join("\n") + "\n\n" + "Bewegungszeit\n" + MT.join("\n");
+                const textInhalt = "Rechnung: " + expectedChar.join("") + "\n\nIndex of Dificulty (zwischen zwei Tasten)\n" +  ID.join("\n") + "\n\n" + "Bewegungszeit (pro gedrückte Taste)\n" + MT.join("\n");
                 const blob = new Blob([textInhalt], { type: "text/plain" });
                 const url = URL.createObjectURL(blob);
 
