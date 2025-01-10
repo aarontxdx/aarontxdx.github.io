@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dart Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .player {
+            width: 40%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .player.active {
+            border-color: green;
+            box-shadow: 0 0 10px green;
+        }
+        .player h2 {
+            margin: 0;
+        }
+        .score {
+            font-size: 3cm;
+            margin: 10px 0;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+        .stats div {
+            text-align: center;
+        }
+        .current-round {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .current-round div {
+            width: 30%;
+            height: 50px;
+            line-height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.2em;
+            background-color: #f9f9f9;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%; /* Passt sich der Breite an */
+            max-width: 500px;
+            margin: auto auto;
+            margin-top: 75px;
+            margin-bottom: auto;
+            height: 100%;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s ease-in-out;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scoreboard</h1>
+
+    <div class="scoreboard">
+        <div class="player" id="player1">
+            <h2>Player 1</h2>
+            <div class="score" id="score1">501</div>
+            <div class="stats">
+                <div>Round Total: <span id="totalRound1">0</span></div>
+                <div>Average: <span id="average1">0.00</span></div>
+                <div>Darts: <span id="dartsThrown1">0</span></div>
+            </div>
+            <div class="current-round" id="currentRound1">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div class="player" id="player2">
+            <h2>Player 2</h2>
+            <div class="score" id="score2">501</div>
+            <div class="stats">
+                <div>Round Total: <span id="totalRound2">0</span></div>
+                <div>Average: <span id="average2">0.00</span></div>
+                <div>Darts: <span id="dartsThrown2">0</span></div>
+            </div>
+            <div class="current-round" id="currentRound2">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <!-- Number buttons -->
+        <button class="number" data-value="0">0</button>
+        <button class="number" data-value="1">1</button>
+        <button class="number" data-value="2">2</button>
+        <button class="number" data-value="3">3</button>
+        <button class="number" data-value="4">4</button>
+        <button class="number" data-value="5">5</button>
+        <button class="number" data-value="6">6</button>
+        <button class="number" data-value="7">7</button>
+        <button class="number" data-value="8">8</button>
+        <button class="number" data-value="9">9</button>
+        <button class="number" data-value="10">10</button>
+        <button class="number" data-value="11">11</button>
+        <button class="number" data-value="12">12</button>
+        <button class="number" data-value="13">13</button>
+        <button class="number" data-value="14">14</button>
+        <button class="number" data-value="15">15</button>
+        <button class="number" data-value="16">16</button>
+        <button class="number" data-value="17">17</button>
+        <button class="number" data-value="18">18</button>
+        <button class="number" data-value="19">19</button>
+        <button class="number" data-value="20">20</button>
+
+        <!-- Function buttons -->
+        <button id="double">Double</button>
+        <button id="triple">Triple</button>
+        <button id="undo">Undo</button>
+    </div>
+
+    <!-- Modal for player names -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h2>Enter Player Names</h2>
+            <input type="text" id="player1Name" placeholder="Player 1 Name" /><br><br>
+            <input type="text" id="player2Name" placeholder="Player 2 Name" /><br><br>
+            <button id="startGame">Start Game</button>
+        </div>
+    </div>
+
+    <script>
+        const player1Score = document.getElementById('score1');
+        const player2Score = document.getElementById('score2');
+        const currentRound1 = document.getElementById('currentRound1');
+        const currentRound2 = document.getElementById('currentRound2');
+        const totalRound1 = document.getElementById('totalRound1');
+        const totalRound2 = document.getElementById('totalRound2');
+        const average1 = document.getElementById('average1');
+        const average2 = document.getElementById('average2');
+        const dartsThrown1 = document.getElementById('dartsThrown1');
+        const dartsThrown2 = document.getElementById('dartsThrown2');
+
+        const numberButtons = document.querySelectorAll('.number');
+        const doubleButton = document.getElementById('double');
+        const tripleButton = document.getElementById('triple');
+        const undoButton = document.getElementById('undo');
+
+        const nameModal = document.getElementById('nameModal');
+        const startGameButton = document.getElementById('startGame');
+        const player1NameInput = document.getElementById('player1Name');
+        const player2NameInput = document.getElementById('player2Name');
+
+        let isDouble = false;
+        let isTriple = false;
+        let currentPlayer = 1;
+        let roundClicks = 0;
+        let totalDarts = { 1: 0, 2: 0 };
+        let totalScores = { 1: 0, 2: 0 };
+        let history = [];
+
+        function saveState() {
+            const state = {
+                player1Score: player1Score.textContent,
+                player2Score: player2Score.textContent,
+                totalRound1: totalRound1.textContent,
+                totalRound2: totalRound2.textContent,
+                average1: average1.textContent,
+                average2: average2.textContent,
+                dartsThrown1: dartsThrown1.textContent,
+                dartsThrown2: dartsThrown2.textContent,
+                currentRound1: Array.from(currentRound1.children).map(slot => slot.textContent),
+                currentRound2: Array.from(currentRound2.children).map(slot => slot.textContent),
+                currentPlayer,
+                roundClicks,
+            };
+            history.push(state);
+        }
+
+        function loadState() {
+            if (history.length > 0) {
+                const state = history.pop();
+
+                player1Score.textContent = state.player1Score;
+                player2Score.textContent = state.player2Score;
+                totalRound1.textContent = state.totalRound1;
+                totalRound2.textContent = state.totalRound2;
+                average1.textContent = state.average1;
+                average2.textContent = state.average2;
+                dartsThrown1.textContent = state.dartsThrown1;
+                dartsThrown2.textContent = state.dartsThrown2;
+
+                currentRound1.innerHTML = '';
+                state.currentRound1.forEach(value => {
+                    const slot = document.createElement('div');
+                    slot.textContent = value;
+                    currentRound1.appendChild(slot);
+                });
+
+                currentRound2.innerHTML = '';
+                state.currentRound2.forEach(value => {
+                    const slot = document.createElement('div');
+                    slot.textContent = value;
+                    currentRound2.appendChild(slot);
+                });
+
+                currentPlayer = state.currentPlayer;
+                roundClicks = state.roundClicks;
+                totalDarts[currentPlayer]--;
+                totalScores[currentPlayer]--;
+
+                document.getElementById('player1').classList.toggle('active', currentPlayer === 1);
+                document.getElementById('player2').classList.toggle('active', currentPlayer === 2);
+            }
+        }
+
+        function updateGame(player, value) {
+            saveState();
+
+            const scoreElement = player === 1 ? player1Score : player2Score;
+            const currentRoundElement = player === 1 ? currentRound1 : currentRound2;
+            let score = parseInt(scoreElement.textContent);
+
+            score -= value;
+            if (score < 0) score = 0;
+            scoreElement.textContent = score;
+
+            const roundSlot = currentRoundElement.children[roundClicks];
+            roundSlot.textContent = value;
+
+            const totalRound = player === 1 ? totalRound1 : totalRound2;
+            const average = player === 1 ? average1 : average2;
+            const dartsThrown = player === 1 ? dartsThrown1 : dartsThrown2;
+
+            let total = Array.from(currentRoundElement.children)
+                .map(slot => parseInt(slot.textContent) || 0)
+                .reduce((a, b) => a + b, 0);
+
+            totalScores[player] += value;
+            totalRound.textContent = total;
+            totalDarts[player]++;
+            dartsThrown.textContent = totalDarts[player];
+            average.textContent = (((501 - parseInt(scoreElement.textContent)) / totalDarts[player]) * 3).toFixed(2);
+        }
+
+        function resetRound() {
+            roundClicks = 0;
+            document.getElementById(`player${currentPlayer}`).classList.remove('active');
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById(`player${currentPlayer}`).classList.add('active');
+            const currentRoundElement = currentPlayer === 1 ? currentRound1 : currentRound2;
+            Array.from(currentRoundElement.children).forEach(slot => (slot.textContent = ''));
+        }
+
+        numberButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (roundClicks < 3) {
+                    let value = parseInt(button.dataset.value);
+
+                    if (isDouble) value *= 2;
+                    if (isTriple) value *= 3;
+
+                    updateGame(currentPlayer, value);
+                    roundClicks++;
+
+                    if (roundClicks === 3) {
+                        resetRound();
+                    }
+                }
+            });
+        });
+
+        doubleButton.addEventListener('click', () => {
+            isDouble = !isDouble;
+            isTriple = false;
+            numberButtons.forEach(button => {
+                button.textContent = isDouble ? `D${button.dataset.value}` : button.dataset.value;
+            });
+        });
+
+        tripleButton.addEventListener('click', () => {
+            isTriple = !isTriple;
+            isDouble = false;
+            numberButtons.forEach(button => {
+                button.textContent = isTriple ? `T${button.dataset.value}` : button.dataset.value;
+            });
+        });
+
+        undoButton.addEventListener('click', () => {
+            if (player1Score != 501) {
+                loadState();
+            }
+        });
+
+        startGameButton.addEventListener('click', () => {
+            const player1Name = player1NameInput.value;
+            const player2Name = player2NameInput.value;
+
+            if (player1Name && player2Name) {
+                document.getElementById('player1').querySelector('h2').textContent = player1Name;
+                document.getElementById('player2').querySelector('h2').textContent = player2Name;
+
+                nameModal.classList.remove('show');
+                document.getElementById('player1').classList.add('active');
+            } else {
+                alert('Please enter names for both players.');
+            }
+        });
+
+        // Show modal on page load
+        window.onload = () => {
+            nameModal.classList.add('show');
+        };
+    </script>
+</body>
+</html>
