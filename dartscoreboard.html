@@ -263,23 +263,26 @@
 
         async function fetchMatchData() {
             try {
-                const response = await fetch(proxyUrl + url)
-                    .then(response => response.json())
-                    .then(data => console.log(data))
-                    .catch(error => console.error('Error:', error));
+                // Hole die Spieldaten von der API (ersetze proxyUrl und url durch die entsprechenden Werte)
+                const response = await fetch(proxyUrl + url);
                 const matches = await response.json();
+                
+                // Suche nach dem nächsten offenen Spiel
                 const nextMatch = matches.find(match => match.match.state === "open");
 
                 if (nextMatch) {
                     const player1 = nextMatch.match.player1_id;
                     const player2 = nextMatch.match.player2_id;
                     
+                    // Hole die Teilnehmerinformationen
                     const playerInfoResponse = await fetch(`${TOURNAMENT_URL}/participants.json?api_key=${API_KEY}`);
                     const participants = await playerInfoResponse.json();
 
+                    // Finde die Namen der Spieler
                     const player1Name = participants.find(p => p.participant.id === player1).participant.name;
                     const player2Name = participants.find(p => p.participant.id === player2).participant.name;
 
+                    // Setze die Spielernamen in die HTML-Elemente
                     player1NameInput.textContent = player1Name;
                     player2NameInput.textContent = player2Name;
                 } else {
