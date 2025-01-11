@@ -247,6 +247,8 @@
         const player1NameInput = document.getElementById('player1Name');
         const player2NameInput = document.getElementById('player2Name');
         const TOURNAMENT_URL = "https://api.challonge.com/v1/tournaments/tallyPally";
+        const url = 'https://api.challonge.com/v1/tournaments/tallyPally/matches.json?api_key=WTBpcbG6PJEoHdo6LUKt55tXaeDJbLlr7kkW8e04';
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const API_KEY = "WTBpcbG6PJEoHdo6LUKt55tXaeDJbLlr7kkW8e04";
 
         let isDouble = false;
@@ -261,7 +263,10 @@
 
         async function fetchMatchData() {
             try {
-                const response = await fetch(`${TOURNAMENT_URL}/matches.json?api_key=${API_KEY}`);
+                const response = await fetch(proxyUrl + url)
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch(error => console.error('Error:', error));
                 const matches = await response.json();
                 const nextMatch = matches.find(match => match.match.state === "open");
 
