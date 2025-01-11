@@ -365,6 +365,8 @@
                 scoreWindow.document.close();
             }
         }
+
+
         // Funktion zum Aktualisieren des Spielstands im neuen Fenster
         function updateLiveScores() {
             // Holt sich den aktuellen Score von der Hauptseite
@@ -402,12 +404,15 @@
             scoreWindow.document.getElementById('livePlayer1').querySelector('h2').textContent = player1;
             scoreWindow.document.getElementById('livePlayer2').querySelector('h2').textContent = player2;
         }
+
+        function openWebsite(url) {
+            // Öffnet die Webseite in einem neuen Tab
+            window.open(url, '_blank');
+        }
+
         function newGame(){
-            if(scoreWindow && !scoreWindow.closed){
-                location.reload();
-            } else {
-                location.reload();
-            }
+            openWebsite("https://challonge.com/de/tallyPally");
+            location.reload();
         }
 
         function saveState() {
@@ -579,6 +584,8 @@
                 alert('Please enter names for both players.');
             }
         });
+
+        
 
         // Show modal on page load
         window.onload = () => {
