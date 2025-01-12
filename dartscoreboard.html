@@ -249,6 +249,7 @@
         
         let isDouble = false;
         let isTriple = false;
+        let isBust = false;
         let currentPlayer = 1;
         let roundClicks = 0;
         let totalDarts = { 1: 0, 2: 0 };
@@ -406,8 +407,24 @@
         }
 
         function openWebsite(url) {
-            // Öffnet die Webseite in einem neuen Tab
-            window.open(url, '_blank');
+                    // Größe des neuen Fensters
+            const windowWidth = 800; // Breite des Fensters
+            const windowHeight = 600; // Höhe des Fensters
+
+            // Bildschirmgröße ermitteln
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+
+            // Position des Fensters (zentriert)
+            const left = (screenWidth - windowWidth) / 2;
+            const top = (screenHeight - windowHeight) / 2;
+
+            // Öffnen des Fensters
+            window.open(
+                url,
+                '_blank',
+                `width=${windowWidth},height=${windowHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
         }
 
         function newGame(){
@@ -429,13 +446,21 @@
                 currentRound2: Array.from(currentRound2.children).map(slot => slot.textContent),
                 currentPlayer,
                 roundClicks,
+                isBust,
             };
             history.push(state);
         }
 
         function loadState() {
             if (history.length > 0) {
-                const state = history.pop();
+                let state = history.pop();
+                currentPlayer = state.currentPlayer;
+                if(state.isBust){
+                    history.pop();
+                    state = history.pop();
+                    totalDarts[currentPlayer]--;
+                    totalDarts[currentPlayer]--;
+                }
 
                 player1Score.textContent = state.player1Score;
                 player2Score.textContent = state.player2Score;
@@ -460,13 +485,15 @@
                     currentRound2.appendChild(slot);
                 });
 
-                currentPlayer = state.currentPlayer;
+                
                 roundClicks = state.roundClicks;
                 totalDarts[currentPlayer]--;
                 totalScores[currentPlayer]--;
 
                 document.getElementById('player1').classList.toggle('active', currentPlayer === 1);
                 document.getElementById('player2').classList.toggle('active', currentPlayer === 2);
+
+
             }
         }
 
@@ -512,12 +539,41 @@
 
         function resetRound() {
             roundClicks = 0;
+            isBust = false;
             document.getElementById(`player${currentPlayer}`).classList.remove('active');
             currentPlayer = currentPlayer === 1 ? 2 : 1;
             document.getElementById(`player${currentPlayer}`).classList.add('active');
             const currentRoundElement = currentPlayer === 1 ? currentRound1 : currentRound2;
             Array.from(currentRoundElement.children).forEach(slot => (slot.textContent = ''));
         }
+
+        function pressDouble(){
+            isDouble = !isDouble;
+            isTriple = false;
+            numberButtons.forEach(button => {
+                if(button.textContent != "25" && button.textContent != "BULL"){
+                    button.textContent = isDouble ? `D${button.dataset.value}` : button.dataset.value;
+                } 
+            });
+        }
+
+        doubleButton.addEventListener('click', () => {
+            pressDouble();
+        });
+
+        function pressTriple(){
+            isTriple = !isTriple;
+            isDouble = false;
+            numberButtons.forEach(button => {
+                if(button.textContent != "25" && button.textContent != "BULL"){
+                    button.textContent = isTriple ? `T${button.dataset.value}` : button.dataset.value;
+                }
+            });
+        }
+
+        tripleButton.addEventListener('click', () => {
+            pressTriple();
+        });
 
         numberButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -526,7 +582,7 @@
                     let value = parseInt(button.dataset.value);
                     if (isDouble && button.textContent != "25" && button.textContent != "BULL") value *= 2;
                     if (isTriple && button.textContent != "25" && button.textContent != "BULL") value *= 3;
-                    if((parseInt(scoreElement.textContent)-value > 0)||(parseInt(scoreElement.textContent)-value == 0 && (isDouble || value == 50))){
+                    if((parseInt(scoreElement.textContent)-value > 1)||(parseInt(scoreElement.textContent)-value == 0 && (isDouble || value == 50))){
                         updateGame(currentPlayer, value);
                         roundClicks++;
                         if (roundClicks === 3) {
@@ -534,29 +590,34 @@
                         }
                     } else {    
                         invalidModal.classList.add('show');
+                        isBust = true;
+                        if(roundClicks == 2){
+                            loadState();
+                            updateLiveScores();
+                            loadState();
+                            updateLiveScores();
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        } else if(roundClicks == 1){
+                            loadState();
+                            updateLiveScores();
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        } else {
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        }
                     }
+                    if (isDouble) pressDouble();
+                    if (isTriple) pressTriple();
                 }
                 updateLiveScores();
-            });
-        });
-
-        doubleButton.addEventListener('click', () => {
-            isDouble = !isDouble;
-            isTriple = false;
-            numberButtons.forEach(button => {
-                if(button.textContent != "25" && button.textContent != "BULL"){
-                    button.textContent = isDouble ? `D${button.dataset.value}` : button.dataset.value;
-                } 
-            });
-        });
-
-        tripleButton.addEventListener('click', () => {
-            isTriple = !isTriple;
-            isDouble = false;
-            numberButtons.forEach(button => {
-                if(button.textContent != "25" && button.textContent != "BULL"){
-                    button.textContent = isTriple ? `T${button.dataset.value}` : button.dataset.value;
-                }
             });
         });
 
