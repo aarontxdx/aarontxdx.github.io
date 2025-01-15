@@ -569,12 +569,12 @@
         function checkWinner() {
             if (parseInt(player1Score.textContent) <= 0) {
                 isFinished = true;
-                checkForFigure();
+                //checkForFigure();
                 winnerModal.querySelector('h2').textContent = player1NameInput.value + " Wins!";
                 winnerModal.classList.add('show');
             } else if (parseInt(player2Score.textContent) <= 0) {
                 isFinished = true;
-                checkForFigure();
+                //checkForFigure();
                 loserModal.querySelector('h2').textContent = player2NameInput.value +" Wins!";
                 loserModal.classList.add('show');
             }
