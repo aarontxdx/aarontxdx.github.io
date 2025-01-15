@@ -255,9 +255,9 @@
         let totalDarts = { 1: 0, 2: 0 };
         let totalScores = { 1: 0, 2: 0 };
         let history = [];
+        let lastThrows = [];
 
         let scoreWindow; // Global variable to keep track of the score window
-
         function openScoreWindow() {
             if (!scoreWindow || scoreWindow.closed) {
                 // Öffnen eines neuen Fensters mit den Live-Spielstandinformationen
@@ -278,7 +278,7 @@
                                 align-items: center;
                                 height: 100vh;
                                 background-color: #f4f4f4;
-                                font-size: 2vw; /* Dynamische Schriftgröße basierend auf der Breite des Fensters */
+                                font-size: 2vw;
                             }
                             .scoreboard {
                                 display: flex;
@@ -291,7 +291,7 @@
                             }
                             .player {
                                 flex: 1;
-                                padding: 2vw; /* Proportionale Abstände */
+                                padding: 2vw;
                                 border-right: 1px solid #ccc;
                                 display: flex;
                                 flex-direction: column;
@@ -306,15 +306,15 @@
                                 border-right: none;
                             }
                             .player h2 {
-                                font-size: 3vw; /* Größere Schrift für den Spielernamen */
-                                margin-bottom: 1vh; /* Dynamische Abstände */
+                                font-size: 3vw;
+                                margin-bottom: 1vh;
                             }
                             .score {
-                                font-size: 16.5vw; /* Dynamische Schriftgröße für den Score */
-                                margin-bottom: 2vh; /* Dynamischer Abstand */
+                                font-size: 16.5vw;
+                                margin-bottom: 2vh;
                             }
                             .stats {
-                                font-size: 2vw; /* Kleinere Schriftgröße für die Statistiken */
+                                font-size: 2vw;
                                 display: flex;
                                 justify-content: space-around;
                             }
@@ -324,7 +324,7 @@
                             .current-round {
                                 display: flex;
                                 justify-content: space-between;
-                                margin-top: 2vh; /* Dynamischer Abstand */
+                                margin-top: 2vh;
                             }
                             .current-round div {
                                 width: 30%;
@@ -333,11 +333,34 @@
                                 border: 1px solid #ccc;
                                 border-radius: 5px;
                                 background-color: #f9f9f9;
-                                font-size: 2vw; /* Dynamische Schriftgröße für die aktuelle Runde */
+                                font-size: 2vw;
+                            }
+                            #video-container {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100vw;
+                                height: 100vh;
+                                background: rgba(0, 0, 0, 0.8);
+                                display: none; /* Verstecke Video zunächst */
+                                justify-content: center;
+                                align-items: center;
+                                z-index: 1000;
+                            }
+                            #overlay-video {
+                                max-width: 80%;
+                                max-height: 80%;
+                                border-radius: 10px;
                             }
                         </style>
                     </head>
                     <body>
+                        <div id="video-container">
+                            <video id="overlay-video" muted>
+                                <source src="figures/video.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                         <div class="scoreboard">
                             <div class="player" id="livePlayer1">
                                 <h2>Player 1</h2>
@@ -364,6 +387,42 @@
 
                 // Schließt das Dokument, um die Seite vollständig zu laden
                 scoreWindow.document.close();
+            }
+        }
+
+        function showFigure(path) {
+            const videoContainer = scoreWindow.document.getElementById("video-container");
+            const video = scoreWindow.document.getElementById("overlay-video");
+
+            // Setze den Video-Source
+            video.src = path;
+
+            // Stelle sicher, dass das Fenster und das Video-Element bereit sind
+            video.onloadstart = () => {
+                // Zeige das Video an, wenn es bereit ist
+                videoContainer.style.display = "flex"; // Zeige das Video an
+                video.play();
+
+                // Wenn das Video zu Ende ist, verstecke es
+                video.addEventListener("ended", () => {
+                    videoContainer.style.display = "none"; // Verstecke das Video
+                });
+            };
+
+            // Wenn das Video bereits geladen ist
+            video.oncanplay = () => {
+                videoContainer.style.display = "flex"; // Zeige das Video an
+                video.play();
+            };
+        }
+
+        function checkForFigure(){
+            if(isBust){
+                showFigure("figures/Bust.mp4");
+            } else if (lastThrows.includes(5) && lastThrows.includes(20) && lastThrows.includes(1)){
+                showFigure("figures/Vollpfosten.mp4");
+            } else if (lastThrows.reduce((accumulator, currentValue) => accumulator + currentValue, 0) >= 100){
+                showFigure("figures/Highscore.mp4");
             }
         }
 
@@ -447,6 +506,7 @@
                 currentPlayer,
                 roundClicks,
                 isBust,
+                lastThrows,
             };
             history.push(state);
         }
@@ -492,7 +552,7 @@
 
                 document.getElementById('player1').classList.toggle('active', currentPlayer === 1);
                 document.getElementById('player2').classList.toggle('active', currentPlayer === 2);
-
+                lastThrows = state.lastThrows
 
             }
         }
@@ -534,11 +594,15 @@
             totalDarts[player]++;
             dartsThrown.textContent = totalDarts[player];
             average.textContent = (((501 - parseInt(scoreElement.textContent)) / totalDarts[player]) * 3).toFixed(2);
+
+            lastThrows.push(value);
+
             checkWinner();
         }
 
         function resetRound() {
             roundClicks = 0;
+            lastThrows = [];
             isBust = false;
             document.getElementById(`player${currentPlayer}`).classList.remove('active');
             currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -586,6 +650,7 @@
                         updateGame(currentPlayer, value);
                         roundClicks++;
                         if (roundClicks === 3) {
+                            checkForFigure();
                             resetRound();
                         }
                     } else {    

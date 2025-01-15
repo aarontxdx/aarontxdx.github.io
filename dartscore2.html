@@ -58,7 +58,7 @@
         .buttons {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
             gap: 10px;
             width: 100%; /* Passt sich der Breite an */
             max-width: 500px;
@@ -97,6 +97,27 @@
         .modal.show {
             visibility: visible;
             opacity: 1;
+        }
+
+        .empty {
+            grid-column: span 1; /* Nimmt eine Spalte ein */
+            background: transparent;
+        }
+
+        /* Styles für das Gewinner-Modal */
+        .winner-modal .modal-content {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .loser-modal .modal-content {
+            background-color: #f44336;
+            color: white;
+        }
+        
+    /* Ungültiger Wurf Modal */
+    .invalid-modal .modal-content {
+            background-color: #ff9800;
+            color: white;
         }
     </style>
 </head>
@@ -141,26 +162,31 @@
         <button class="number" data-value="2">2</button>
         <button class="number" data-value="3">3</button>
         <button class="number" data-value="4">4</button>
+        <button id="double">Double</button>
         <button class="number" data-value="5">5</button>
         <button class="number" data-value="6">6</button>
         <button class="number" data-value="7">7</button>
         <button class="number" data-value="8">8</button>
         <button class="number" data-value="9">9</button>
+        <button id="triple">Triple</button>
         <button class="number" data-value="10">10</button>
         <button class="number" data-value="11">11</button>
         <button class="number" data-value="12">12</button>
         <button class="number" data-value="13">13</button>
         <button class="number" data-value="14">14</button>
+        <div class="empty"></div> <!-- Freier Platz -->
         <button class="number" data-value="15">15</button>
         <button class="number" data-value="16">16</button>
         <button class="number" data-value="17">17</button>
         <button class="number" data-value="18">18</button>
         <button class="number" data-value="19">19</button>
+        <div class="empty"></div> <!-- Freier Platz -->
         <button class="number" data-value="20">20</button>
-
+        <button class="number" data-value="25">25</button>
+        <button class="number" data-value="50">BULL</button>
+        <div class="empty"></div> <!-- Freier Platz -->
+        <div class="empty"></div> <!-- Freier Platz -->
         <!-- Function buttons -->
-        <button id="double">Double</button>
-        <button id="triple">Triple</button>
         <button id="undo">Undo</button>
     </div>
 
@@ -171,6 +197,31 @@
             <input type="text" id="player1Name" placeholder="Player 1 Name" /><br><br>
             <input type="text" id="player2Name" placeholder="Player 2 Name" /><br><br>
             <button id="startGame">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Modal für Gewinner -->
+    <div class="modal" id="winnerModal">
+        <div class="modal-content">
+            <h2>Player 1 Wins!</h2>
+            <button onclick="newGame()">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Modal für Verlierer -->
+    <div class="modal" id="loserModal">
+        <div class="modal-content">
+            <h2>Player 2 Wins!</h2>
+            <button onclick="newGame()">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Modal für ungültigen Wurf -->
+    <div class="modal" id="invalidModal">
+        <div class="modal-content">
+            <h2>Invalid Throw!</h2>
+            <p>It is not possible to make this throw with your current score.</p>
+            <button onclick="invalidModal.classList.remove('show')">Okay</button>
         </div>
     </div>
 
@@ -195,14 +246,191 @@
         const startGameButton = document.getElementById('startGame');
         const player1NameInput = document.getElementById('player1Name');
         const player2NameInput = document.getElementById('player2Name');
-
+        
         let isDouble = false;
         let isTriple = false;
+        let isBust = false;
         let currentPlayer = 1;
         let roundClicks = 0;
         let totalDarts = { 1: 0, 2: 0 };
         let totalScores = { 1: 0, 2: 0 };
         let history = [];
+
+        let scoreWindow; // Global variable to keep track of the score window
+
+        function openScoreWindow() {
+            if (!scoreWindow || scoreWindow.closed) {
+                // Öffnen eines neuen Fensters mit den Live-Spielstandinformationen
+                scoreWindow = window.open("", "ScoreWindow", "width=1000,height=600");
+
+                // Schreiben des initialen HTML-Inhalts und CSS in das neue Fenster
+                scoreWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Live Score</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 0;
+                                padding: 0;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 100vh;
+                                background-color: #f4f4f4;
+                                font-size: 2vw; /* Dynamische Schriftgröße basierend auf der Breite des Fensters */
+                            }
+                            .scoreboard {
+                                display: flex;
+                                justify-content: space-between;
+                                width: 90%;
+                                height: 90%;
+                                border: 2px solid #ccc;
+                                border-radius: 10px;
+                                background-color: white;
+                            }
+                            .player {
+                                flex: 1;
+                                padding: 2vw; /* Proportionale Abstände */
+                                border-right: 1px solid #ccc;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: space-between;
+                                text-align: center;
+                            }
+                            .player.active {
+                                border-color: green;
+                                box-shadow: 0 0 10px green;
+                            }
+                            .player:last-child {
+                                border-right: none;
+                            }
+                            .player h2 {
+                                font-size: 3vw; /* Größere Schrift für den Spielernamen */
+                                margin-bottom: 1vh; /* Dynamische Abstände */
+                            }
+                            .score {
+                                font-size: 16.5vw; /* Dynamische Schriftgröße für den Score */
+                                margin-bottom: 2vh; /* Dynamischer Abstand */
+                            }
+                            .stats {
+                                font-size: 2vw; /* Kleinere Schriftgröße für die Statistiken */
+                                display: flex;
+                                justify-content: space-around;
+                            }
+                            .stats div {
+                                width: 30%;
+                            }
+                            .current-round {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 2vh; /* Dynamischer Abstand */
+                            }
+                            .current-round div {
+                                width: 30%;
+                                height: 5vh;
+                                line-height: 5vh;
+                                border: 1px solid #ccc;
+                                border-radius: 5px;
+                                background-color: #f9f9f9;
+                                font-size: 2vw; /* Dynamische Schriftgröße für die aktuelle Runde */
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="scoreboard">
+                            <div class="player" id="livePlayer1">
+                                <h2>Player 1</h2>
+                                <div class="score" id="livePlayer1Score">501</div>
+                                <div class="stats">
+                                    <div>Round Total:<br> <span id="liveTotalRound1">0</span></div>
+                                    <div>Average:<br> <span id="liveAverage1">0.00</span></div>
+                                    <div>Darts:<br> <span id="liveDartsThrown1">0</span></div>
+                                </div>
+                            </div>
+                            <div class="player" id="livePlayer2">
+                                <h2>Player 2</h2>
+                                <div class="score" id="livePlayer2Score">501</div>
+                                <div class="stats">
+                                    <div>Round Total:<br> <span id="liveTotalRound2">0</span></div>
+                                    <div>Average:<br> <span id="liveAverage2">0.00</span></div>
+                                    <div>Darts:<br> <span id="liveDartsThrown2">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                // Schließt das Dokument, um die Seite vollständig zu laden
+                scoreWindow.document.close();
+            }
+        }
+
+
+        // Funktion zum Aktualisieren des Spielstands im neuen Fenster
+        function updateLiveScores() {
+            // Holt sich den aktuellen Score von der Hauptseite
+            const player1Score = document.getElementById('score1').textContent;
+            const player2Score = document.getElementById('score2').textContent;
+            const totalRound1 = document.getElementById('totalRound1').textContent;
+            const totalRound2 = document.getElementById('totalRound2').textContent;
+            const average1 = document.getElementById('average1').textContent;
+            const average2 = document.getElementById('average2').textContent;
+            const dartsThrown1 = document.getElementById('dartsThrown1').textContent;
+            const dartsThrown2 = document.getElementById('dartsThrown2').textContent;
+
+            // Überprüfen, ob das Fenster existiert und geöffnet ist
+            if (scoreWindow && !scoreWindow.closed) {
+                // Setzt den Score und andere Daten der Spieler im neuen Fenster
+                scoreWindow.document.getElementById('livePlayer1Score').textContent = player1Score;
+                scoreWindow.document.getElementById('livePlayer2Score').textContent = player2Score;
+                scoreWindow.document.getElementById('liveTotalRound1').textContent = totalRound1;
+                scoreWindow.document.getElementById('liveTotalRound2').textContent = totalRound2;
+                scoreWindow.document.getElementById('liveAverage1').textContent = average1;
+                scoreWindow.document.getElementById('liveAverage2').textContent = average2;
+                scoreWindow.document.getElementById('liveDartsThrown1').textContent = dartsThrown1;
+                scoreWindow.document.getElementById('liveDartsThrown2').textContent = dartsThrown2;
+                if (currentPlayer === 1) {
+                    scoreWindow.document.getElementById('livePlayer1').classList.add('active');
+                    scoreWindow.document.getElementById('livePlayer2').classList.remove('active');
+                } else {
+                    scoreWindow.document.getElementById('livePlayer2').classList.add('active');
+                    scoreWindow.document.getElementById('livePlayer1').classList.remove('active');
+                }
+            }
+        }
+
+        function setLivePlayerName(player1, player2){
+            scoreWindow.document.getElementById('livePlayer1').querySelector('h2').textContent = player1;
+            scoreWindow.document.getElementById('livePlayer2').querySelector('h2').textContent = player2;
+        }
+
+        function openWebsite(url) {
+                    // Größe des neuen Fensters
+            const windowWidth = 800; // Breite des Fensters
+            const windowHeight = 600; // Höhe des Fensters
+
+            // Bildschirmgröße ermitteln
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+
+            // Position des Fensters (zentriert)
+            const left = (screenWidth - windowWidth) / 2;
+            const top = (screenHeight - windowHeight) / 2;
+
+            // Öffnen des Fensters
+            window.open(
+                url,
+                '_blank',
+                `width=${windowWidth},height=${windowHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
+        }
+
+        function newGame(){
+            openWebsite("https://challonge.com/de/tallyPally");
+            location.reload();
+        }
 
         function saveState() {
             const state = {
@@ -218,13 +446,21 @@
                 currentRound2: Array.from(currentRound2.children).map(slot => slot.textContent),
                 currentPlayer,
                 roundClicks,
+                isBust,
             };
             history.push(state);
         }
 
         function loadState() {
             if (history.length > 0) {
-                const state = history.pop();
+                let state = history.pop();
+                currentPlayer = state.currentPlayer;
+                if(state.isBust){
+                    history.pop();
+                    state = history.pop();
+                    totalDarts[currentPlayer]--;
+                    totalDarts[currentPlayer]--;
+                }
 
                 player1Score.textContent = state.player1Score;
                 player2Score.textContent = state.player2Score;
@@ -249,13 +485,25 @@
                     currentRound2.appendChild(slot);
                 });
 
-                currentPlayer = state.currentPlayer;
+                
                 roundClicks = state.roundClicks;
                 totalDarts[currentPlayer]--;
                 totalScores[currentPlayer]--;
 
                 document.getElementById('player1').classList.toggle('active', currentPlayer === 1);
                 document.getElementById('player2').classList.toggle('active', currentPlayer === 2);
+
+
+            }
+        }
+
+        function checkWinner() {
+            if (parseInt(player1Score.textContent) <= 0) {
+                winnerModal.querySelector('h2').textContent = player1NameInput.value + " Wins!";
+                winnerModal.classList.add('show');
+            } else if (parseInt(player2Score.textContent) <= 0) {
+                loserModal.querySelector('h2').textContent = player2NameInput.value +" Wins!";
+                loserModal.classList.add('show');
             }
         }
 
@@ -286,10 +534,12 @@
             totalDarts[player]++;
             dartsThrown.textContent = totalDarts[player];
             average.textContent = (((501 - parseInt(scoreElement.textContent)) / totalDarts[player]) * 3).toFixed(2);
+            checkWinner();
         }
 
         function resetRound() {
             roundClicks = 0;
+            isBust = false;
             document.getElementById(`player${currentPlayer}`).classList.remove('active');
             currentPlayer = currentPlayer === 1 ? 2 : 1;
             document.getElementById(`player${currentPlayer}`).classList.add('active');
@@ -297,43 +547,84 @@
             Array.from(currentRoundElement.children).forEach(slot => (slot.textContent = ''));
         }
 
-        numberButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (roundClicks < 3) {
-                    let value = parseInt(button.dataset.value);
-
-                    if (isDouble) value *= 2;
-                    if (isTriple) value *= 3;
-
-                    updateGame(currentPlayer, value);
-                    roundClicks++;
-
-                    if (roundClicks === 3) {
-                        resetRound();
-                    }
-                }
-            });
-        });
-
-        doubleButton.addEventListener('click', () => {
+        function pressDouble(){
             isDouble = !isDouble;
             isTriple = false;
             numberButtons.forEach(button => {
-                button.textContent = isDouble ? `D${button.dataset.value}` : button.dataset.value;
+                if(button.textContent != "25" && button.textContent != "BULL"){
+                    button.textContent = isDouble ? `D${button.dataset.value}` : button.dataset.value;
+                } 
             });
+        }
+
+        doubleButton.addEventListener('click', () => {
+            pressDouble();
         });
 
-        tripleButton.addEventListener('click', () => {
+        function pressTriple(){
             isTriple = !isTriple;
             isDouble = false;
             numberButtons.forEach(button => {
-                button.textContent = isTriple ? `T${button.dataset.value}` : button.dataset.value;
+                if(button.textContent != "25" && button.textContent != "BULL"){
+                    button.textContent = isTriple ? `T${button.dataset.value}` : button.dataset.value;
+                }
+            });
+        }
+
+        tripleButton.addEventListener('click', () => {
+            pressTriple();
+        });
+
+        numberButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (roundClicks < 3) {
+                    const scoreElement = currentPlayer === 1 ? player1Score : player2Score;
+                    let value = parseInt(button.dataset.value);
+                    if (isDouble && button.textContent != "25" && button.textContent != "BULL") value *= 2;
+                    if (isTriple && button.textContent != "25" && button.textContent != "BULL") value *= 3;
+                    if((parseInt(scoreElement.textContent)-value > 1)||(parseInt(scoreElement.textContent)-value == 0 && (isDouble || value == 50))){
+                        updateGame(currentPlayer, value);
+                        roundClicks++;
+                        if (roundClicks === 3) {
+                            resetRound();
+                        }
+                    } else {    
+                        invalidModal.classList.add('show');
+                        isBust = true;
+                        if(roundClicks == 2){
+                            loadState();
+                            updateLiveScores();
+                            loadState();
+                            updateLiveScores();
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        } else if(roundClicks == 1){
+                            loadState();
+                            updateLiveScores();
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        } else {
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            updateGame(currentPlayer, 0);
+                            resetRound();
+                        }
+                    }
+                    if (isDouble) pressDouble();
+                    if (isTriple) pressTriple();
+                }
+                updateLiveScores();
             });
         });
 
         undoButton.addEventListener('click', () => {
             if (player1Score != 501) {
                 loadState();
+                updateLiveScores();
             }
         });
 
@@ -347,15 +638,21 @@
 
                 nameModal.classList.remove('show');
                 document.getElementById('player1').classList.add('active');
+                openScoreWindow();
+                updateLiveScores();
+                setLivePlayerName(player1Name, player2Name);
             } else {
                 alert('Please enter names for both players.');
             }
         });
 
+        
+
         // Show modal on page load
         window.onload = () => {
             nameModal.classList.add('show');
         };
+        
     </script>
 </body>
 </html>
