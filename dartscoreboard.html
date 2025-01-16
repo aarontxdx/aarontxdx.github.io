@@ -561,8 +561,8 @@
 
                 document.getElementById('player1').classList.toggle('active', currentPlayer === 1);
                 document.getElementById('player2').classList.toggle('active', currentPlayer === 2);
-                lastThrows = state.lastThrows
-
+                lastThrows = state.lastThrows;
+                lastThrows.pop();
             }
         }
 
