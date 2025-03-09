@@ -419,19 +419,19 @@
 
         function checkForFigure(){
             if(isBust){
-                showFigure("figures/Bust.mp4");
+                //showFigure("figures/Bust.mp4");
             } else if (lastThrows.includes(5) && lastThrows.includes(20) && lastThrows.includes(1)){
-                showFigure("figures/Vollpfosten.mp4");
+                //showFigure("figures/Vollpfosten.mp4");
             } else if (lastThrows.reduce((accumulator, currentValue) => accumulator + currentValue, 0) == 180){
-                showFigure("figures/oneEighty.mp4");
+                //showFigure("figures/oneEighty.mp4");
             } else if (lastThrows.reduce((accumulator, currentValue) => accumulator + currentValue, 0) >= 100){
                 if(isFinished){
-                    showFigure("figures/Highfinish.mp4");
+                    //showFigure("figures/Highfinish.mp4");
                 } else {
-                    showFigure("figures/Highscore.mp4");
+                    //showFigure("figures/Highscore.mp4");
                 }
             } else if (isFinished) {
-                showFigure("figures/finish.mp4");
+                //showFigure("figures/finish.mp4");
             }
         }
 
