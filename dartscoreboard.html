@@ -390,7 +390,31 @@
                 scoreWindow.document.close();
             }
         }
+        function showGIF(path) {
+            const videoContainer = scoreWindow.document.getElementById("video-container");
+            const gifElement = scoreWindow.document.createElement("img"); // Erstelle ein img-Element für das GIF
 
+            // Setze den Pfad des GIFs mit einem eindeutigen Query-String
+            const timestamp = new Date().getTime(); // Einzigartiger Wert basierend auf der aktuellen Zeit
+            gifElement.src = `${path}?t=${timestamp}`; // Pfad + Query-String
+            gifElement.style.maxWidth = "100%";
+            gifElement.style.maxHeight = "100%";
+            gifElement.style.objectFit = "contain";
+
+            // Stelle sicher, dass der Container sichtbar ist
+            videoContainer.style.display = "flex"; // Zeige den Container an
+            videoContainer.style.alignItems = "center"; // Zentriere das GIF vertikal
+            videoContainer.style.justifyContent = "center"; // Zentriere das GIF horizontal
+            videoContainer.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // Setze einen halbtransparenten Hintergrund (oder entferne ihn)
+            videoContainer.innerHTML = ""; // Entferne alten Inhalt, falls vorhanden
+            videoContainer.appendChild(gifElement); // Füge das GIF-Element hinzu
+
+            // Verstecke den Container nach 5 Sekunden
+            setTimeout(() => {
+                videoContainer.style.display = "none"; // Verstecke den Container
+                videoContainer.innerHTML = ""; // Bereinige den Inhalt
+            }, 5000); // 5 Sekunden
+        }
         function showFigure(path) {
             const videoContainer = scoreWindow.document.getElementById("video-container");
             const video = scoreWindow.document.getElementById("overlay-video");
@@ -421,14 +445,14 @@
             if(isBust){
                 //showFigure("figures/Bust.mp4");
             } else if (lastThrows.includes(5) && lastThrows.includes(20) && lastThrows.includes(1)){
-                //showFigure("figures/Vollpfosten.mp4");
+                showGIF("figures/vollpfosten.gif");
             } else if (lastThrows.reduce((accumulator, currentValue) => accumulator + currentValue, 0) == 180){
                 //showFigure("figures/oneEighty.mp4");
             } else if (lastThrows.reduce((accumulator, currentValue) => accumulator + currentValue, 0) >= 100){
                 if(isFinished){
-                    //showFigure("figures/Highfinish.mp4");
+                    showGIF("figures/highfinish.gif");
                 } else {
-                    //showFigure("figures/Highscore.mp4");
+                    showGIF("figures/100.gif");
                 }
             } else if (isFinished) {
                 //showFigure("figures/finish.mp4");
