@@ -1,29 +1,127 @@
-<button onclick="loadSheetData()">Daten laden</button>
-<table id="sheet-data"></table>
-
-<script>
-  const API_KEY = 'AIzaSyAQzfvT_oHf13y-sMyLOZeu62eyek5_R4k'; // Ersetze durch deinen API-Schlüssel
-  const SPREADSHEET_ID = '1WsmV6LhMMJv1Smv8LXSMiHhNhlXQb5OnxzcBMXIULR8'; // Deine Spreadsheet-ID
-  const RANGE = 'Sheet1!A1:Z1000'; // Bereich, den du abrufen möchtest
-
-  async function loadSheetData() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.values) {
-      const table = document.getElementById('sheet-data');
-      data.values.forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        table.appendChild(tr);
-      });
-    } else {
-      console.error('Keine Daten gefunden.');
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kastenliste & Strafen</title>
+  <style>
+    /* Grundlayout */
+    body {
+      margin: 20px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f0f4f8;
+      color: #333;
     }
-  }
-</script>
+
+    h1, h2 {
+      text-align: center;
+      color: #0b3d0b; /* dunkles Grün */
+      margin: 1em 0 0.5em;
+    }
+
+    /* Tabellen-Stil in Grün–Schwarz */
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      border-collapse: collapse;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    caption {
+      caption-side: top;
+      font-size: 1.3em;
+      font-weight: bold;
+      padding: 10px;
+      background: #0b3d0b;  /* dunkles Grün */
+      color: #fff;
+    }
+
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #0a2e0a; /* dunkelgrüne Umrandung */
+    }
+
+    th {
+      background: #145214; /* intensives Tannengrün */
+      color: #fff;
+      text-align: left;
+    }
+
+    tr:nth-child(even) {
+      background: #e6f3e6; /* sehr helles Grün */
+    }
+
+    tr:hover {
+      background: #cfe6cf; /* leicht dunkleres Grün beim Hover */
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Kastenliste 2025</h1>
+
+  <!-- Tabelle • Einzelne Strafen -->
+  <h2>Einzelsünden</h2>
+  <table>
+    <caption>Strafen pro Person</caption>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Strafe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Beispiel-Einträge -->
+      <tr><td>A. Thies</td><td> </td></tr>
+      <tr><td>Cakmak</td><td> </td></tr>
+      <tr><td>Christmann</td><td>I (Bild Zeitung)</td></tr>
+      <tr><td>Fordjani</td><td> </td></tr>
+      <tr><td>Furac</td><td> </td></tr>
+      <tr><td>Geiger</td><td> </td></tr>
+      <tr><td>Gräsle</td><td> </td></tr>
+      <tr><td>Kimmerle</td><td>I (11 der Woche), I (11 m verschossen Training)</td></tr>
+      <tr><td>Kincer</td><td> </td></tr>
+      <tr><td>Lefty</td><td>I (Bild Zeitung)</td></tr>
+      <tr><td>Marquardt</td><td>I Luft</td></tr>
+      <tr><td>Mehl</td><td>I Luft</td></tr>
+      <tr><td>Mergel</td><td>I (11 m verschossen Training)</td></tr>
+      <tr><td>Patridas</td><td>II Luft</td></tr>
+      <tr><td>Paulus A.</td><td> </td></tr>
+      <tr><td>Paulus T.</td><td>I Luft</td></tr>
+      <tr><td>Pfeifer</td><td> </td></tr>
+      <tr><td>Roth L.</td><td>I (1. Spiel)</td></tr>
+      <tr><td>Schmidt</td><td>I (11 der Woche)</td></tr>
+      <tr><td>Schneider</td><td>I (Ball ü Fangzaun Trainingslager)</td></tr>
+      <tr><td>Schwarz</td><td>II (Bild Zeitung)</td></tr>
+      <tr><td>Wacker M.</td><td> </td></tr>
+      <tr><td>Wetsch</td><td> </td></tr>
+      <tr><td>Wick</td><td>I (11 der Woche)</td></tr>
+      <tr><td>Wolf</td><td> </td></tr>
+      <tr><td>Wunsch</td><td>I (Bild Zeitung), I (11 der Woche)</td></tr>
+      <tr><td>Yalcin</td><td> </td></tr>
+      <tr><td>Zervas</td><td> </td></tr>
+    </tbody>
+  </table>
+
+  <!-- Tabelle • Gruppen-Strafen -->
+  <h2>Gruppenstrafe</h2>
+  <table>
+    <caption>Übergreifende Strafen</caption>
+    <thead>
+      <tr>
+        <th>Teilnehmer</th>
+        <th>Strafe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Beispiel Gruppenstrafe -->
+      <tr>
+        <td>Laurin, Leon, Mehl, Mert, Nici, Kimmerle, Nikl, Timo, Ange, Wacker</td>
+        <td>1 Kasten zusammen (3.50 € pro Person)</td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>
