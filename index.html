@@ -1,77 +1,109 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kastenliste</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        caption {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kastenliste & Strafen</title>
+  <style>
+    body {
+      margin: 20px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #1f497d;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+    }
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      border-collapse: collapse;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    caption {
+      caption-side: top;
+      font-size: 1.3em;
+      font-weight: bold;
+      padding: 10px;
+      background-color: #d9e2ef;
+      color: #333;
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #c8d1e0;
+    }
+    th {
+      background: #4f6eab;
+      color: #fff;
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background: #eef3f7;
+    }
+    tr:hover {
+      background: #dde6f1;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Kastenliste</h1>
+  <h1>Kastenliste 2025</h1>
 
-    <table>
-        <caption>Liste der Strafen</caption>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Kästen</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Max Mustermann</td>
-                <td>10 Liegestütze</td>
-            </tr>
-            <tr>
-                <td>Erika Musterfrau</td>
-                <td>5 Runden um den Block</td>
-            </tr>
-            <tr>
-                <td>Hans Wurst</td>
-                <td>1 Minute Hampelmann</td>
-            </tr>
-            <tr>
-                <td>Anna Beispiel</td>
-                <td>20 Kniebeugen</td>
-            </tr>
-            <tr>
-                <td>Peter Pan</td>
-                <td>1 Minute Seilspringen</td>
-            </tr>
-        </tbody>
-    </table>
+  <!-- Einzel-Strafen -->
+  <h2>Einzelsünden</h2>
+  <table>
+    <caption>Strafen pro Person</caption>
+    <thead>
+      <tr><th>Name</th><th>Strafe</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Christmann</td><td>I (Bild Zeitung)</td></tr>
+      <tr><td>Gräsle</td><td>–</td></tr>
+      <tr><td>Kimmerle</td><td>I (11 der Woche), I (11 m verschossen Training)</td></tr>
+      <tr><td>Marquardt</td><td>(| Luft)</td></tr>
+      <tr><td>Mehl</td><td>–</td></tr>
+      <tr><td>Mergel</td><td>I (11 m verschossen Training)</td></tr>
+      <tr><td>Modjesch</td><td>–</td></tr>
+      <tr><td>Patridas</td><td>|| Luft</td></tr>
+      <tr><td>Paulus T.</td><td>| Luft</td></tr>
+      <tr><td>Paulus A.</td><td>–</td></tr>
+      <tr><td>Wetsch</td><td>I (Bild Zeitung), I (erstes Pflichtspieltor), II (11 der Woche)</td></tr>
+      <tr><td>Schwarz</td><td>II (Bild Zeitung)</td></tr>
+      <tr><td>Schmidt</td><td>I (11 der Woche)</td></tr>
+      <tr><td>Sterle</td><td>–</td></tr>
+      <tr><td>Stickel</td><td>–</td></tr>
+      <tr><td>Völler</td><td>–</td></tr>
+      <tr><td>Wacker</td><td>–</td></tr>
+      <tr><td>Wick</td><td>I (11 der Woche)</td></tr>
+      <tr><td>Wolf</td><td>–</td></tr>
+      <tr><td>Wunsch</td><td>I (Bild Zeitung), I (11 der Woche)</td></tr>
+      <tr><td>Valle</td><td>–</td></tr>
+      <tr><td>A. Thies</td><td>–</td></tr>
+      <tr><td>Fordjani</td><td>–</td></tr>
+      <tr><td>lefty</td><td>I (Bild Zeitung)</td></tr>
+      <tr><td>Schneider</td><td>I (Ball ü Fangzaun Trainingslager)</td></tr>
+      <tr><td>Leander Roth</td><td>I (1. Spiel)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Gruppen-Strafen -->
+  <h2>Gruppenstrafe</h2>
+  <table>
+    <caption>Übergreifende Strafen</caption>
+    <thead>
+      <tr><th>Teilnehmer</th><th>Strafe</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Laurin, Leon, Mehl, Mert, Nici, Kimmerle, Nikl, Timo, Ange, Wacker</td>
+        <td>1 Kasten zusammen (3 € pro Person)</td>
+      </tr>
+    </tbody>
+  </table>
 
 </body>
 </html>
