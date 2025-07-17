@@ -1,16 +1,77 @@
-<html>
-    <head>
-        <title>Experimente</title>
-        <style>
-body {
-    font-family: sans-serif;
-}
-        </style>
-    </head>
-   <body>
-        <h1 id="title">Dart game</h1>
-        <h2 id="instruction">501 SIDO:</h2>
-        <a href="dartscoreboard.html">Start new game</a>
-   </body>
-</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kastenliste</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        caption {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
 
+    <h1>Kastenliste</h1>
+
+    <table>
+        <caption>Liste der Strafen</caption>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Strafe</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Max Mustermann</td>
+                <td>10 Liegestütze</td>
+            </tr>
+            <tr>
+                <td>Erika Musterfrau</td>
+                <td>5 Runden um den Block</td>
+            </tr>
+            <tr>
+                <td>Hans Wurst</td>
+                <td>1 Minute Hampelmann</td>
+            </tr>
+            <tr>
+                <td>Anna Beispiel</td>
+                <td>20 Kniebeugen</td>
+            </tr>
+            <tr>
+                <td>Peter Pan</td>
+                <td>1 Minute Seilspringen</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
